@@ -1,18 +1,7 @@
-import {createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from "firebase/auth";
-import firebase, { initializeApp } from 'firebase/app';
-import { getDatabase, set, ref , onValue, child, get} from "firebase/database";
+import { getDatabase, set, ref, get} from "firebase/database";
+import { fireBaseApp } from '../../firebase';
 
-
-const appFireBase = initializeApp({
-    apiKey: "AIzaSyBQBlP2M3K87JdhpFvh56318m9NFEUpvPc",
-    authDomain: "hey-project-dd78c.firebaseapp.com",
-    projectId: "hey-project-dd78c",
-    storageBucket: "hey-project-dd78c.appspot.com",
-    messagingSenderId: "489912923039",
-    appId: "1:489912923039:web:bf1e600009adaf9904c3aa",
-    measurementId: "G-D888PW7K40"
-});
-const database = getDatabase(appFireBase);
+const database = getDatabase(fireBaseApp);
 
 export default {
     actions: {
@@ -33,7 +22,7 @@ export default {
 
         },
         // Обновлкение информации о пользователе
-        async clientUpdate({dispatch, commit}, {name, lastName, patronymic, pol, dateOfBirth, site, about, photo}) {
+        async clientUpdate({dispatch, commit}, {name, lastName, patronymic, pol, dateOfBirth, site, about, photo, zodiac}) {
             const uid = await dispatch('getUid');
 
             set(ref(database, `users/${uid}`), {
@@ -44,7 +33,8 @@ export default {
                 dateOfBirth,
                 site,
                 about,
-                photo
+                photo,
+                zodiac
             });
         },
     }

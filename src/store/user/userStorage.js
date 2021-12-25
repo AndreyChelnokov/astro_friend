@@ -1,17 +1,7 @@
-import {createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from "firebase/auth";
-import firebase, { initializeApp } from 'firebase/app';
 import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
+import { fireBaseApp } from '../../firebase';
 
-const appFireBase = initializeApp({
-    apiKey: "AIzaSyBQBlP2M3K87JdhpFvh56318m9NFEUpvPc",
-    authDomain: "hey-project-dd78c.firebaseapp.com",
-    projectId: "hey-project-dd78c",
-    storageBucket: "hey-project-dd78c.appspot.com",
-    messagingSenderId: "489912923039",
-    appId: "1:489912923039:web:bf1e600009adaf9904c3aa",
-    measurementId: "G-D888PW7K40"
-});
-const storage = getStorage(appFireBase);
+const storage = getStorage(fireBaseApp);
 
 export default {
     actions: {

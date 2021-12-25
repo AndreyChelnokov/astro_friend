@@ -1,20 +1,7 @@
 import {createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from "firebase/auth";
-import firebase, { initializeApp } from 'firebase/app';
-// import { getDatabase, set, ref , onValue, child, get} from "firebase/database";
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { fireBaseApp } from '../../firebase';
 
-
-const appFireBase = initializeApp({
-    apiKey: "AIzaSyBQBlP2M3K87JdhpFvh56318m9NFEUpvPc",
-    authDomain: "hey-project-dd78c.firebaseapp.com",
-    projectId: "hey-project-dd78c",
-    storageBucket: "hey-project-dd78c.appspot.com",
-    messagingSenderId: "489912923039",
-    appId: "1:489912923039:web:bf1e600009adaf9904c3aa",
-    measurementId: "G-D888PW7K40"
-});
-const storage = getStorage(appFireBase);
-// const database = getDatabase(appFireBase);
+const appFB = fireBaseApp;
 const auth = getAuth();
 
 export default {
@@ -30,6 +17,9 @@ export default {
                     const errorCode = error.code;
                     const errorMessage = error.message;
                 });
+        },
+        async signOutUser({dispatch, commit}) {
+            await auth.signOut()
         },
         // Регистрация пользователя => user
         async clientCreate({dispatch, commit}, {email, password}) {
