@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import { convertObjectToArray } from '../utils';
+
 export default {
   name: 'Message',
   data: function () {
@@ -78,13 +80,19 @@ export default {
           chat: false,
           img: '../assets/img/profile/user-empty.png'
         },
-      ]
+      ],
+
+      notSelectedUsers: [],
     }
   },
+  methods: {},
   computed: {
     chatUser: function () {
       return this.suitableUsers.find(item => item.chat)
     }
+  },
+  mounted: async function() {
+    await this.getNotSelectedUsers();
   }
 }
 </script>

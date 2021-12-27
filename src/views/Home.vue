@@ -1,141 +1,56 @@
 <template>
   <div class="content-page home">
     <div ref="users" class="cart__list">
-      <div
-          v-for="(item, i) in listCart"
-          :data-id="item.id"
-          class="cart-item"
-          :class="item.checked ? item.checkedClass : ''"
-          :style="{ zIndex: i }"
-      >
-        <div class="cart__footer">
-          <div class="cart__content">
-            <div class="cart__name">{{ item.name }}</div>
-            <div class="cart__age">{{ item.age }}</div>
-            <div class="cart__description">{{ item.description }}</div>
-          </div>
-          <div class="cart__btns">
-            <div @click="removeCart(item.id)" class="cart__btn">Удалить</div>
-            <div @click="addCart(item.id)" class="cart__btn">Добавить</div>
-          </div>
-        </div>
-
-      </div>
+      <userCart
+          v-for="(item, i) in notSelectedUsers"
+          :item="item"
+          :index="i"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import $ from "jquery";
+
+import {convertObjectToArray} from "../utils";
+import userCart from '../components/UserCard'
 
 export default {
   name: 'Home',
   data: function () {
     return {
-      swipeEvent: {
-        startClientX: '',
-        startClientY: '',
-        endClientX: 0,
-        endClientY: 0,
-      },
-      listCart: [
-        {
-          id: 12,
-          name: 'Маша',
-          age: 23,
-          description: 'Текст описания который можно выводить',
-          checked: false
-        },
-        {
-          id: 32,
-          name: 'Алина',
-          age: 24,
-          description: 'Текст описания который можно выводить',
-          checked: false
-        },
-        {
-          id: 17,
-          name: 'Даша',
-          age: 21,
-          description: 'Текст описания который можно выводить',
-          checked: false
-        },
-        {
-          id: 4,
-          name: 'Андрей',
-          age: 24,
-          description: 'Текст описания который можно выводить',
-          checked: false
-        }
-      ],
-      ignoreList: [],
-      chosenList: []
+      notSelectedUsers: [], // массив не отобранных пользователец
+      selectedUsers: [],
+      rejectedUsers: []
     }
   },
   methods: {
-    addCart: function (id) {
-      this.listCart.forEach((item) => {
-        if (item.id === id) {
-          item.checked = true;
-          item.checkedClass = 'add'
+    getAllUsersFromDB: async function() {
+      return await this.$store.dispatch('getAllUsers')
+    },
+    excludeInappropriateUsers: async function(allUsers) {
+      return allUsers.filter(user => {
+        if (this.selectedUsers.indexOf(user.id) > 0) {
+          return false;
         }
-      })
 
-      setTimeout(() => {
-        this.deleteCardFromBaseList(id);
-        this.chosenList.push(id);
-
-        return this.listCart.length;
-      }, 1000)
-    },
-    removeCart: function (id) {
-      this.listCart.forEach((item) => {
-        if (item.id === id) {
-          item.checked = true;
-          item.checkedClass = 'remove'
+        if (this.rejectedUsers.indexOf(user.id) > 0) {
+          return false;
         }
-      })
 
-      setTimeout(() => {
-        this.deleteCardFromBaseList(id)
-        this.ignoreList.push(id);
-
-        return this.listCart.length;
-      }, 1000)
+        return user;
+      });
     },
-
-    deleteCardFromBaseList: function (id) {
-      this.listCart.forEach((cart, i) => {
-        if (cart.id === id) {
-          this.listCart.splice(i, 1);
-        }
-      })
-    },
-
-    touchstart: function (e) {
-      this.swipeEvent.startClientX = e.touches[0].clientX
-      this.swipeEvent.startClientY = e.touches[0].clientY
-    },
-    touchmove: function (e) {
-      this.swipeEvent.endClientX = e.touches[0].clientX;
-      this.swipeEvent.endClientY = e.touches[0].clientY;
-    },
-    touchend: function (e) {
-      const itemId = Number(e.target.getAttribute('data-id'));
-
-      if (this.swipeEvent.endClientX > this.swipeEvent.startClientX) {
-        this.addCart(itemId)
-      } else {
-        this.removeCart(itemId)
-      }
+    getNotSelectedUsers: async function() {
+      const usersAll = convertObjectToArray( await this.getAllUsersFromDB()) ;
+      return await this.excludeInappropriateUsers(usersAll);
     }
   },
-  mounted() {
-    this.$refs.users.addEventListener('touchstart', e => this.touchstart(e))
-    this.$refs.users.addEventListener('touchmove', e => this.touchmove(e))
-    this.$refs.users.addEventListener('touchend', e => this.touchend(e))
-
-    document.ontouchend
+  components: {
+    userCart
+  },
+  mounted: async function() {
+    this.notSelectedUsers = await this.getNotSelectedUsers();
   }
 }
 </script>

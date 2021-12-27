@@ -52,7 +52,25 @@ export default {
           this.isLoginError = false;
         }, 3000)
       })
+    },
+
+    isUser: async function() {
+      let uid = await this.$store.dispatch('getUid');
+
+      if (uid) {
+        return true;
+      }
+
+      return false;
+    },
+    updateUserRouterLocation: async function(newLocation) {
+      if (await this.isUser()) {
+        await this.$router.push(newLocation)
+      }
     }
+  },
+  mounted: function () {
+    this.updateUserRouterLocation('/user')
   }
 }
 </script>

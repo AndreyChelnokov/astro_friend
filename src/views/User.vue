@@ -49,6 +49,7 @@ import Select from '../components/Select';
 import { Swiper, SwiperSlide, directive } from 'vue-awesome-swiper';
 import '../assets/css/swiper.css';
 
+import { updatingLocalUserDataFunction } from '../utils';
 export default {
   name: 'User',
   data: function () {
@@ -107,27 +108,9 @@ export default {
       return await this.$store.dispatch('getUserData');
     },
     updatingLocalUserData: async function() {
-      const user = await this.getUserDateFromDB();
+      const userData = await this.getUserDateFromDB();
 
-      this.user.photo = user.photo || [];
-      this.user.name = user.name || '';
-      this.user.lastName = user.lastName || '';
-      this.user.patronymic = user.patronymic || '';
-      this.user.polResult = user.pol || '';
-      this.user.dateOfBirth.day = user.dateOfBirth.day || '';
-      this.user.dateOfBirth.month = user.dateOfBirth.month || '';
-      this.user.dateOfBirth.year = user.dateOfBirth.year || '';
-      this.user.zodiac = user.zodiac,
-
-      this.user.date = `${this.user.dateOfBirth.year}-0${this.user.dateOfBirth.month}-${this.user.dateOfBirth.day}`
-
-      this.user.dateOfBirth.minute = user.dateOfBirth.minute || '';
-      this.user.dateOfBirth.second = user.dateOfBirth.second || '';
-
-      this.user.time = `${this.user.dateOfBirth.minute}:${this.user.dateOfBirth.second}`;
-
-      this.user.site = user.site || '';
-      this.user.about = user.about || '';
+      updatingLocalUserDataFunction(userData, this.user)
     },
 
     isUser: async function() {
@@ -152,8 +135,8 @@ export default {
     },
   },
   mounted: async function () {
-    await this.updateUserRouterLocation(); // Перенаправляем пользователя (при необходимости)
-    await this.updatingLocalUserData('/login'); // Данные из БД помещаем в локальные данные
+    await this.updateUserRouterLocation('/login'); // Перенаправляем пользователя (при необходимости)
+    await this.updatingLocalUserData(); // Данные из БД помещаем в локальные данные
   }
 }
 </script>

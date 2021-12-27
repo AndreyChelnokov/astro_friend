@@ -6,9 +6,8 @@ const database = getDatabase(fireBaseApp);
 export default {
     actions: {
         // Получаем данные пользователя
-        async getUserData({dispatch, commit}) {
-            const uid = await dispatch('getUid');
-            const userRef = ref(database, `users/${uid}`);
+        async getAllUsers({dispatch, commit}) {
+            const userRef = ref(database, `users`);
 
             return get(userRef).then((snapshot) => {
                 if (snapshot.exists()) {
@@ -21,21 +20,30 @@ export default {
             });
 
         },
-        // Обновлкение информации о пользователе
-        async clientUpdate({dispatch, commit}, {name, lastName, patronymic, pol, dateOfBirth, site, about, photo, zodiac}) {
+
+        // Получаем данные пользователя и записываем в стор
+        async getUserData({dispatch, commit}) {
+            const uid = await dispatch('getUid');
+            const userRef = ref(database, `users/${uid}`);
+
+            return get(userRef)
+                .then((snapshot) => {
+                    if (snapshot.exists()) {
+                        commit('SET_USER_DATA', snapshot.val())
+                        return snapshot.val();
+                    }
+                    console.log('Ошибка при получении userData');
+                }).catch((error) => {
+                    console.error('rrr', error);
+                });
+
+        },
+
+        // Обновлкение БД из стора
+        async clientUpdate({dispatch, commit}, userData) {
             const uid = await dispatch('getUid');
 
-            set(ref(database, `users/${uid}`), {
-                name,
-                lastName,
-                patronymic,
-                pol,
-                dateOfBirth,
-                site,
-                about,
-                photo,
-                zodiac
-            });
+            set(ref(database, `users/${uid}`), userData);
         },
     }
 }

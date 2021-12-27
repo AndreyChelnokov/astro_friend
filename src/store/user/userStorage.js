@@ -1,4 +1,4 @@
-import { getStorage, ref, uploadBytes, listAll, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, listAll, getDownloadURL, deleteObject } from "firebase/storage";
 import { fireBaseApp } from '../../firebase';
 
 const storage = getStorage(fireBaseApp);
@@ -39,11 +39,23 @@ export default {
                     console.log(error)
                 });
         },
-        async getUrlPhoto({dispatch, commit}, {name}) {
+        async getUrlPhoto({dispatch, commit}, { name }) {
             const uid = await dispatch('getUid');
 
             return getDownloadURL(ref(storage, `${uid}/photos/${name}`))
                 .then(url => url)
+        },
+
+        async deletePhoto({dispatch, commit}, { name }) {
+            const uid = await dispatch('getUid');
+
+            // Delete the file
+            return deleteObject(ref(storage, `${uid}/photos/${name}`))
+                .then(() => {
+                    return true;
+                }).catch((error) => {
+                    return false;
+                });
         }
     }
 }

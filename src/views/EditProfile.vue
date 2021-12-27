@@ -5,9 +5,9 @@
         <img class="user__img-icon" :src="userAvatar" alt="">
       </div>
       <div class="user__base-data">
-        <div class="user__name">{{ user.lastName }} {{ user.name }}</div>
-        <div v-if="user.zodiac" class="zodiac">Знак зодиака: {{ user.zodiac }}</div>
-        <div class="user__age">{{ user.age }}</div>
+        <div class="user__name">{{ this.userLastName }} {{ this.userName }}</div>
+        <div v-if="this.userZodiac" class="zodiac">Знак зодиака: {{ this.userZodiac }}</div>
+        <div v-if="this.userAge" class="user__age">Возраст {{ this.userAge }}</div>
       </div>
     </div>
 
@@ -15,64 +15,48 @@
       Выйти
     </button>
 
-    <div class="user__photo">
-      <div class="user__photo-wrap">
-        <div v-for="photo in user.photo"
-             :key="photo.id"
-             :id="photo.id"
-             class="user__photo-item">
-          <img
-              style="width: 100px;height: 100px; object-fit: cover;"
-              :src="photo.url"
-          >
-
-          <div class="user__photo-btns">
-            <div @click="deletePhoto(photo.id)" class="user__photo-btn user__photo-delete">X</div>
-            <div @click="updateAvatar(photo.id)" class="user__photo-btn user__photo-top">V</div>
-          </div>
-        </div>
-      </div>
-      <input @change="changeUploaderFiles" type="file" class="user__photo-input" name="" id="">
-    </div>
+    <EditPhoto />
 
 
 
     <div class="user__data">
       <form @submit.prevent="updateUserData" action="" class="user__data-wrap user__about">
         <div class="user__data-title">Общая информация</div>
-        <div class="user__data-description">Данная информация доступная всем пользователям</div>
+
+        <!-- Имя -->
+        <div class="user__data-item">
+          <input v-model="userName" class="input-text" type="text" placeholder="Имя">
+        </div>
+        <!-- Фамилия -->
+        <div class="user__data-item">
+          <input v-model="userLastName"  class="input-text" type="text" placeholder="Фамилия">
+        </div>
+        <!-- Отчество -->
+        <div class="user__data-item">
+          <input v-model="userPatronymic" class="input-text" type="text" placeholder="Отчество">
+        </div>
+        <!-- Дата -->
+        <div class="user__data-item">
+          <input @input="changeDate" v-model="userDateDay" class="input-text" type="number" placeholder="дд">
+          <input @input="changeDate" v-model="userDateMonth" class="input-text" type="number" placeholder="мм">
+          <input @input="changeDate" v-model="userDateYear" class="input-text" type="number" placeholder="гг">
+        </div>
+        <!-- Время -->
+        <div class="user__data-item">
+          <input v-model="userDateHours" class="input-text" type="number" placeholder="чч">
+          <input v-model="userDateMinutes" class="input-text" type="number" placeholder="мм">
+        </div>
+        <!-- Страна -->
+        <div class="user__data-item">
+          <input v-model="userCountry" class="input-text" type="text" placeholder="Город рождения">
+        </div>
+        <!-- Описание -->
+        <div class="user__data-item">
+          <textarea v-model="userDescription" class="input-textarea" name="" placeholder="О себе..."></textarea>
+        </div>
 
         <div class="user__data-item">
-          <input
-              v-model="user.name"
-              class="input-text"
-              type="text"
-              placeholder="Имя">
-        </div>
-        <div class="user__data-item">
-          <input v-model="user.lastName" class="input-text" type="text" placeholder="Фамилия">
-        </div>
-        <div class="user__data-item">
-          <input v-model="user.patronymic" class="input-text" type="text" placeholder="Отчество">
-        </div>
-
-        <div class="user__data-item">
-          <Select :type="'pol'" :name="user.pol.name" :list="user.pol.values" :errorText="user.pol.errorText" />
-        </div>
-
-        <div class="user__data-item">
-          <input @change="changeData" v-model="user.date" class="input-text" type="date" placeholder="Дата рождения">
-        </div>
-        <div class="user__data-item">
-          <input @change="changeTime" v-model="user.time" class="input-text" type="time" placeholder="Время рождения">
-        </div>
-
-        <div class="user__data-item">
-          <input v-model="user.site" class="input-text" type="text" placeholder="Город рождения">
-        </div>
-
-        <div class="user__data-item">
-          <textarea v-model="user.about" class="input-textarea" name="" placeholder="О себе..."></textarea>
+          <Select :type="'pol'" :name="pol.name" :list="pol.variantPol" :errorText="pol.errorText" />
         </div>
 
         <button type="submit">Сохранить</button>
@@ -83,266 +67,181 @@
 
 <script>
 import Select from '../components/Select';
+import { getZodiac, getAge } from '../utils'
+import EditPhoto from '../components/editPtoro'
 
 export default {
-  name: 'User',
+  name: 'EditProfile',
   data: function () {
     return {
-      user: {
-        photo: [],
-        name: '',
-        lastName: '',
-        patronymic: '',
-        age: '',
-        date: '',
-        time: '',
-        zodiac: '',
-        pol: {
-          errorText: 'Укажите ваш пол',
-          name: 'Пол',
-          values: [
-            {
-              value: '1',
-              name: 'Мужской'
-            },
-            {
-              value: '2',
-              name: 'Женский'
-            }
-          ]
-        },
-        polResult: '',
-        dateOfBirth: {
-          day: '',
-          month: '',
-          year: '',
-          minute: '',
-          second: ''
-        },
-        site: '',
-        about: ''
+      pol: {
+        name: 'Пол',
+        errorText: 'Какя-то ошибка ошибка',
+        variantPol: [
+          {
+            value: 'Мужской'
+          },
+          {
+            value: 'Женский'
+          }
+        ]
       }
     }
   },
   components: {
-    Select
+    Select,
+    EditPhoto
   },
   methods: {
+    // Выход из аккаунта
     signOutUser: function () {
-      this.$store.dispatch('signOutUser')
+      this.$store.dispatch('signOutUser');
+      this.reLocation('/login')
     },
+    // Обновляем данные в БД
     updateUserData: async function () {
-      await this.$store.dispatch('clientUpdate', {
-        photo: this.user.photo,
-        name: this.user.name,
-        lastName: this.user.lastName,
-        patronymic: this.user.patronymic,
-        pol: this.user.pol.name,
-        zodiac: this.user.zodiac,
-        dateOfBirth: {
-          day: this.user.dateOfBirth.day,
-          month: this.user.dateOfBirth.month,
-          year: this.user.dateOfBirth.year,
-          minute: this.user.dateOfBirth.minute,
-          second: this.user.dateOfBirth.second
-        },
-        site: this.user.site,
-        about: this.user.about
-      })
+      await this.$store.dispatch('clientUpdate', this.$store.state.user)
     },
-    getZodiac: function () {
-      if (!this.user.dateOfBirth.day && !this.user.dateOfBirth.month) {
-        return '';
+    // При любом изменении даты рождения
+    changeDate: function () {
+      const zodiac = getZodiac(Number(this.userDateDay), Number(this.userDateMonth));
+      const age = getAge(Number(this.userDateDay), Number(this.userDateMonth), Number(this.userDateYear))
+
+      if (zodiac) {
+        this.$store.commit('UPDATE_USER_ZODIAC', zodiac)
       }
 
-      let result = '';
-
-      switch (this.user.dateOfBirth.month) {
-        case 1:
-          if (this.user.dateOfBirth.day <= 19)
-            result = 'Козерог';
-          else
-            result = 'Водолей';
-          break;
-        case 2:
-          if (this.user.dateOfBirth.day <= 18)
-            result = 'Водолей';
-          else
-            result = 'Рыбы';
-          break;
-        case 3:
-          if (this.user.dateOfBirth.day <= 20)
-            result = 'Рыбы';
-          else
-            result = 'Овен';
-          break;
-        case 4:
-          if (this.user.dateOfBirth.day <= 19)
-            result = 'Овен';
-          else
-            result = 'Телец';
-          break;
-        case 5:
-          if (this.user.dateOfBirth.day <= 20)
-            result = 'Телец';
-          else
-            result = 'Близнецы';
-          break;
-        case 6:
-          if (this.user.dateOfBirth.day <= 21)
-            result = 'Близнецы';
-          else
-            result = 'Рак';
-          break;
-        case 7:
-          if (this.user.dateOfBirth.day <= 22)
-            result = 'Рак';
-          else
-            result = 'Лев';
-          break;
-        case 8:
-          if (this.user.dateOfBirth.day <= 22)
-            result = 'Лев';
-          else
-            result = 'Дева';
-          break;
-        case 9:
-          if (this.user.dateOfBirth.day <= 22)
-            result = 'Дева';
-          else
-            result = 'Весы';
-          break;
-        case 10:
-          if (this.user.dateOfBirth.day <= 22)
-            result = 'Весы';
-          else
-            result = 'Скорпион';
-          break;
-        case 11:
-          if (this.user.dateOfBirth.day <= 22)
-            result = 'Скорпион';
-          else
-            result = 'Стрелец';
-          break;
-        case 12:
-          if (this.user.dateOfBirth.day <= 21)
-            result = 'Стрелец';
-          else
-            result = 'Козерог';
-          break;
-      };
-
-      return result;
-    },
-    changeData: function (e) {
-      const date = new Date(e.target.value)
-      this.user.dateOfBirth.day = date.getDate();
-      this.user.dateOfBirth.month = date.getMonth() + 1;
-      this.user.dateOfBirth.year = date.getFullYear();
-
-      this.user.zodiac = this.getZodiac();
-      this.getAge();
-    },
-    changeTime: function (e) {
-      const value = e.target.value;
-      if (value.match(/\d+:\d+/)) {
-        const data = value.split(':')
-        this.user.dateOfBirth.minute = data[0];
-        this.user.dateOfBirth.second = data[1];
-      }
-    },
-    getAge: function () {
-      const birthDate = new Date(this.user.date);
-      const otherDate = new Date();
-
-      let years = (otherDate.getFullYear() - birthDate.getFullYear());
-
-      if (otherDate.getMonth() < birthDate.getMonth() ||
-          otherDate.getMonth() == birthDate.getMonth() && otherDate.getDate() < birthDate.getDate()) {
-        years--;
+      if (age) {
+        this.$store.commit('UPDATE_USER_AGE', age)
       }
 
-      this.user.age = years || '';
-    },
-    setUserPhoto: function (e) {
-      return this.$store.dispatch('pushClientPhoto', {
-        imgName: e.target.files[0].name,
-        file: e.target.files[0]
-      })
-    },
-    getUserPhotoUrlOfStorage: async function (userPhoto) {
-      return this.$store.dispatch('getUrlPhoto', {name: userPhoto})
-          .then(url => {
-            this.user.photo.push({
-              url,
-              avatar: this.user.photo.length ? false : true,
-              name: userPhoto,
-              id: this.user.photo.length ? this.user.photo[this.user.photo.length - 1].id + 1 : 1
-            });
-          })
-    },
-    changeUploaderFiles: async function (e) {
-      const photoMame = await this.setUserPhoto(e);
-      await this.getUserPhotoUrlOfStorage(photoMame).then(() => {
-        this.updateUserData() // После добавления фото добавляем ссылки в БД
-      })
-
-    },
-    deletePhoto: function (idPhoto) {
-      this.user.photo.forEach((item, i) => {
-        if (item.id === idPhoto) {
-          this.user.photo.splice(i, 1);
-        }
-      })
       this.updateUserData()
     },
-    updateAvatar: function (idPhoto) {
-      this.user.photo.forEach((item, i) => {
-        if (item.id === idPhoto) {
-          this.user.photo[i].avatar = true;
-        } else {
-          this.user.photo[i].avatar = false;
-        }
-      })
-      this.updateUserData()
+
+    // LOCATION
+    isUser: async function() {
+      let uid = await this.$store.dispatch('getUid');
+
+      if (uid) {
+        return true;
+      }
+
+      return false;
+    },
+    reLocation: async function(newLocation) {
+      if (await this.isUser()) {
+      } else {
+        await this.$router.push(newLocation)
+      }
     },
   },
   computed: {
+    userName: {
+      get () {
+        return this.$store.state.user.baseData.name.name
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_NAME', value)
+      }
+    },
+    userLastName: {
+      get () {
+        return this.$store.state.user.baseData.name.lastName
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_LASTNAME', value)
+      }
+    },
+    userPatronymic: {
+      get () {
+        return this.$store.state.user.baseData.name.patronymic
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_PATRONYMIC', value)
+      }
+    },
+
+    userDateDay: {
+      get () {
+        return this.$store.state.user.baseData.dateAndTimeOfBirth.day
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_DAY', value)
+      }
+    },
+    userDateMonth: {
+      get () {
+        return this.$store.state.user.baseData.dateAndTimeOfBirth.month
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_MONTH', value)
+      }
+    },
+    userDateYear: {
+      get () {
+        return this.$store.state.user.baseData.dateAndTimeOfBirth.year
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_YEAR', value)
+      }
+    },
+
+    userDateHours: {
+      get () {
+        return this.$store.state.user.baseData.dateAndTimeOfBirth.hours
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_HOURS', value)
+      }
+    },
+    userDateMinutes: {
+      get () {
+        return this.$store.state.user.baseData.dateAndTimeOfBirth.minutes
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_MINUTES', value)
+      }
+    },
+
+    userCountry: {
+      get () {
+        return this.$store.state.user.baseData.country
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_COUNTRY', value)
+      }
+    },
+    userDescription: {
+      get () {
+        return this.$store.state.user.baseData.description
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_DESCRIPTION', value)
+      }
+    },
+
+    userZodiac: function () {
+      return this.$store.state.user.baseData.zodiac;
+    },
+    userAge: function () {
+      return this.$store.state.user.baseData.age;
+    },
+
     userAvatar: function () {
       let avatar = 'base';
-      this.user.photo.forEach(item => {
-        if (item.avatar) {
-          avatar = item.url;
-        }
-      })
+      if (this.$store.state.user.baseData.photoUrlList) {
+        this.$store.state.user.baseData.photoUrlList.forEach(item => {
+          if (item.avatar) {
+            avatar = item.url;
+          }
+        })
+      }
 
       return avatar;
     }
   },
   mounted: async function () {
-    const user = await this.$store.dispatch('getUserData');
-
-    this.user.photo = user.photo || [];
-    this.user.name = user.name || '';
-    this.user.lastName = user.lastName || '';
-    this.user.patronymic = user.patronymic || '';
-    this.user.polResult = user.pol || '';
-    this.user.dateOfBirth.day = user.dateOfBirth.day || '';
-    this.user.dateOfBirth.month = user.dateOfBirth.month || '';
-    this.user.dateOfBirth.year = user.dateOfBirth.year || '';
-
-    this.user.date = `${this.user.dateOfBirth.year}-0${this.user.dateOfBirth.month}-${this.user.dateOfBirth.day}`
-
-    this.user.dateOfBirth.minute = user.dateOfBirth.minute || '';
-    this.user.dateOfBirth.second = user.dateOfBirth.second || '';
-
-    this.user.time = `${this.user.dateOfBirth.minute}:${this.user.dateOfBirth.second}`;
-
-    this.user.site = user.site || '';
-    this.user.about = user.about || '';
-
-    this.user.zodiac = this.getZodiac();
-    this.getAge();
+    await this.reLocation('/login')
   }
 }
 </script>

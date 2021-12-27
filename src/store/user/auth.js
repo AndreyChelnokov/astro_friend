@@ -23,20 +23,12 @@ export default {
         },
         // Регистрация пользователя => user
         async clientCreate({dispatch, commit}, {email, password}) {
-            createUserWithEmailAndPassword(auth, email, password)
+            return createUserWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    // Signed in
-                    const user = userCredential.user;
-
-                    // this.success = true;
+                    return true; // Успешно зарегистирован
                 })
                 .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-
-                    if (errorCode === "auth/email-already-in-use") {
-                        // this.isRegistered = true;
-                    }
+                    return false;
                 });
         },
         // Получаем пользователя => user
@@ -49,20 +41,6 @@ export default {
             const user = auth.currentUser;
             return user ? user.uid : null;
         },
-    },
-    store: {
-        user: {
-            isUser: false,
-            userData: {}
-        }
-    },
-    mutations: {
-        TOGGLE_IS_USER(store) {
-            store.user.isUser = true;
-        },
-        SET_USER_DATA(store, data) {
-            store.user.userData = data;
-        }
     },
     getters: {}
 }

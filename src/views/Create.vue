@@ -41,23 +41,42 @@ export default {
   },
   methods: {
     createUser: async function () {
-      await this.$store.dispatch('clientCreate', {
+      const newUser = await this.$store.dispatch('clientCreate', {
         email: this.email,
         password: this.password
-      }).then(() => {
-        this.success = true;
+      });
 
+      if (newUser) {
+        this.success = true;
         setTimeout(() => {
           this.success = false;
+          this.$router.push('/user');
         }, 3000)
-      }).catch(() => {
+      } else {
         this.noSuccess = true;
-
         setTimeout(() => {
           this.noSuccess = false;
         }, 3000)
-      })
+      }
+    },
+
+    isUser: async function() {
+      let uid = await this.$store.dispatch('getUid');
+
+      if (uid) {
+        return true;
+      }
+
+      return false;
+    },
+    updateUserRouterLocation: async function(newLocation) {
+      if (await this.isUser()) {
+        await this.$router.push(newLocation)
+      }
     }
+  },
+  mounted: function () {
+    this.updateUserRouterLocation('/user')
   }
 }
 </script>

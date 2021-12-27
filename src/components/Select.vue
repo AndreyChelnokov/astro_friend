@@ -1,13 +1,13 @@
 <template>
   <div class="select">
     <div class="select__btn">
-      <div class="select__btn-name">{{ resultName }}</div>
+      <div class="select__btn-name">{{ selected }}</div>
       <div class="select__btn-icon">></div>
     </div>
-    <select @change="toggleValue" name="input-select">
+    <select @change="updateUserData" v-model="selected" name="input-select">
       <option value="0"></option>
-      <option v-for="(value, i) in list" :value="value.value" :key="i + value">
-        {{ value.name }}
+      <option v-for="(item, i) in list" :value="item.value" :key="i">
+        {{ item.value }}
       </option>
     </select>
   </div>
@@ -17,9 +17,7 @@
 export default {
   name: 'Select',
   data: function () {
-    return {
-      resultName: this.name
-    }
+    return {}
   },
   props: {
     name: String,
@@ -27,21 +25,18 @@ export default {
     list: Array
   },
   methods: {
-    toggleValue: function (e) {
-      const index = e.target.selectedIndex;
-      const text = e.target[index].innerText;
-
-      if (text === '') {
-        this.resultName = this.errorText;
-        return false;
+    updateUserData: async function () {
+      await this.$store.dispatch('clientUpdate', this.$store.state.user)
+    }
+  },
+  computed: {
+    selected: {
+      get () {
+        return this.$store.state.user.baseData.pol
+      },
+      set (value) {
+        this.$store.commit('UPDATE_USER_POL', value)
       }
-
-      if (this.type === 'pol') {
-        this.$store.commit('SET_POL', text)
-      }
-
-      this.resultName = text;
-      return text;
     }
   }
 }
