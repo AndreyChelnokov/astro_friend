@@ -1,31 +1,16 @@
 <template>
   <div class="message content-page">
     <div class="message__wrap">
-      <div class="message__title">Ваши совпадения</div>
-      <div class="message__slider">
-        <div v-for="user in suitableUsers" class="message__slider-item">
-          <div class="message__item-img">
-            <img class="message__item-img-icon" :src="user.img" alt="">
-          </div>
-          <div class="message__item-header">
-            <div class="message__item-name">{{ user.name }}</div>
-            <div class="message__item-age">{{ user.age }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="message__wrap">
       <div class="message__title">Ваши чаты</div>
       <div class="message__list">
-        <div v-for="user in chatUser" class="message__item">
-          <div class="message__item-img">
-            <img class="message__item-img-icon" :src="user.img" alt="">
+        <div v-for="user in listChats" class="message__item">
+          <div class="message__item-img">ggg
+<!--            <img class="message__item-img-icon" :src="user.img" alt="">-->
           </div>
           <div class="message__item-content">
-            <div class="message__item-header">
-              <div class="message__item-name">{{ user.name }}</div>
-              <div class="message__item-age">{{ user.age }}</div>
+<!--            <div class="message__item-header">-->
+<!--              <div class="message__item-name">{{ user.name }}</div>-->
+<!--              <div class="message__item-age">{{ user.age }}</div>-->
             </div>
             <div class="message__item-last-message">Круто, Давай встретимся на днях...</div>
           </div>
@@ -42,58 +27,15 @@ import { convertObjectToArray } from '../utils';
 export default {
   name: 'Message',
   data: function () {
-    return {
-      suitableUsers: [
-        {
-          name: 'Маша',
-          age: 23,
-          chat: true,
-          img: '../assets/img/profile/user-empty.png'
-        },
-        {
-          name: 'Даша',
-          age: 20,
-          chat: false,
-          img: '../assets/img/profile/user-empty.png'
-        },
-        {
-          name: 'Алина',
-          age: 24,
-          chat: true,
-          img: '../assets/img/profile/user-empty.png'
-        },
-        {
-          name: 'Андрей',
-          age: 23,
-          chat: false,
-          img: '../assets/img/profile/user-empty.png'
-        },
-        {
-          name: 'Боря',
-          age: 23,
-          chat: true,
-          img: '../assets/img/profile/user-empty.png'
-        },
-        {
-          name: 'Маша',
-          age: 20,
-          chat: false,
-          img: '../assets/img/profile/user-empty.png'
-        },
-      ],
-
-      notSelectedUsers: [],
-    }
+    return {}
   },
   methods: {},
   computed: {
-    chatUser: function () {
-      return this.suitableUsers.find(item => item.chat)
+    listChats: function () {
+      return this.$store.state.user.chats;
     }
   },
-  mounted: async function() {
-    await this.getNotSelectedUsers();
-  }
+  mounted: async function() {}
 }
 </script>
 

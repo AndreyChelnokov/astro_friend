@@ -22,6 +22,7 @@ export default {
   },
   mounted: async function() {
     await this.$store.dispatch('getUserData'); // Получаем данные из БД в стор
+    this.$store.commit('CREATE_USER_EMPTY_FIELDS')
   }
 }
 </script>

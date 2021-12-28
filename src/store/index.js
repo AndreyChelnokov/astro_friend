@@ -2,7 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import auth from './user/auth'
 import userdata from "./user/userDB";
-import userStorage from './user/userStorage'
+import userStorage from './user/userStorage';
+import chats from './chats/chats'
 
 Vue.use(Vuex)
 
@@ -18,7 +19,7 @@ export default new Vuex.Store({
           patronymic: ''
         },
         zodiac: '',
-        pol: 'Ошибочнгая строка для теста. Перезатерается при инициализации приложения',
+        pol: '',
         dateAndTimeOfBirth: {
           year: '',
           month: '',
@@ -31,12 +32,27 @@ export default new Vuex.Store({
       },
       selectedUsers: [], // Массив id пользователей которы лайкнул +
       rejectedUsers: [], // Массив id пользователей которы дизлайкнул -
+      chats: [] // Чаты
     }
   },
   mutations: {
     SET_USER_DATA (state, newValue) {
       state.user = newValue;
       console.log('Стор обнавлен', state)
+    },
+
+    CREATE_USER_EMPTY_FIELDS (state) {
+      if (! state.user.selectedUsers) {
+        state.user.selectedUsers = [];
+      }
+
+      if (! state.user.rejectedUsers) {
+        state.user.rejectedUsers = [];
+      }
+
+      if (! state.user.baseData.photoUrlList) {
+        state.user.baseData.photoUrlList = [];
+      }
     },
 
     UPDATE_USER_POL (state, pol) {
@@ -76,7 +92,6 @@ export default new Vuex.Store({
         }
       })
     },
-
 
     // Обновления полей имекни пользователя
     UPDATE_USER_NAME (state, name) {
@@ -124,6 +139,26 @@ export default new Vuex.Store({
       state.user.baseData.description = description;
       console.log('UPDATE_USER_HOURS', state.user.baseData.description)
     },
+
+    PUSH__USER_REJECTED_USERS (state, idUser) {
+      if (! Array.isArray(state.user.rejectedUsers)) {
+        state.user.rejectedUsers = []
+      }
+      state.user.rejectedUsers.push(idUser)
+    },
+    PUSH__USER_SELECTED_USERS (state, idUser) {
+      if (! Array.isArray(state.user.selectedUsers)) {
+        state.user.selectedUsers = []
+      }
+      state.user.selectedUsers.push(idUser)
+    },
+
+    ADD_NEW_CHAT (state, idUserChat) {
+      if (! Array.isArray(state.user.chats)) {
+        state.user.chats = []
+      }
+      state.user.chats.push(idUserChat)
+    }
   },
 
   actions: {
@@ -131,6 +166,8 @@ export default new Vuex.Store({
   modules: {
     auth,
     userdata,
-    userStorage
-  }
+    userStorage,
+    chats
+  },
+  getters: {}
 })

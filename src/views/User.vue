@@ -5,11 +5,11 @@
       <div class="user-profile__photo-wrap">
         <div class="user-profile__photo-slider-container" ref="photoSwiper" v-swiper:mySwiper="swiperOptions">
           <div class="swiper-wrapper">
-            <div class="user-profile__photo swiper-slide" v-for="photo in user.photo" :key="photo.id" :id="photo.id">
+            <div class="user-profile__photo swiper-slide" v-for="photo in user.baseData.photoUrlList" :key="photo.id" :id="photo.id">
               <img :src="photo.url" alt="">
             </div>
           </div>
-          <div class="swiper-pagination"></div>
+          <div class="user-profile__pagination" slot="pagination"></div>
         </div>
       </div>
     </div>
@@ -17,15 +17,15 @@
     <div class="user-profile__data">
       <div class="user-profile__data-item data-item">
         <div class="user-profile-header">
-          <div class="user-profile__name">{{ user.name }}</div>
-          <div class="user-profile__age">24</div>
+          <div class="user-profile__name">{{ user.baseData.name.name }}</div>
+          <div class="user-profile__age">{{ user.baseData.age }}</div>
         </div>
-        <div class="user-profile__descr">{{ user.about }}</div>
+        <div class="user-profile__descr">{{ user.baseData.description }}</div>
       </div>
       <div class="user-profile__data-item data-item">
         <div class="data-item__elem">
-          Знак зодиака: {{ user.zodiac }} <br>
-          Пол: {{ user.polResult }}
+          Знак зодиака: {{ user.baseData.zodiac }} <br>
+          Пол: {{ user.baseData.pol }}
         </div>
       </div>
     </div>
@@ -56,42 +56,9 @@ export default {
     return {
       swiperOptions: {
         pagination: {
-          el: '.swiper-pagination',
-        },
-      },
-      user: {
-        photo: [],
-        name: '',
-        lastName: '',
-        patronymic: '',
-        age: '',
-        date: '',
-        time: '',
-        zodiac: '',
-        pol: {
-          errorText: 'Укажите ваш пол',
-          name: 'Пол',
-          values: [
-            {
-              value: '1',
-              name: 'Мужской'
-            },
-            {
-              value: '2',
-              name: 'Женский'
-            }
-          ]
-        },
-        polResult: '',
-        dateOfBirth: {
-          day: '',
-          month: '',
-          year: '',
-          minute: '',
-          second: ''
-        },
-        site: '',
-        about: ''
+          el: '.user-profile__pagination',
+          loop: true
+        }
       }
     }
   },
@@ -110,7 +77,6 @@ export default {
     updatingLocalUserData: async function() {
       const userData = await this.getUserDateFromDB();
 
-      updatingLocalUserDataFunction(userData, this.user)
     },
 
     isUser: async function() {
@@ -133,10 +99,13 @@ export default {
     swiper: function() {
       return this.$refs.photoSwiper.$swiper;
     },
+    user: function() {
+      return this.$store.state.user;
+    }
   },
   mounted: async function () {
     await this.updateUserRouterLocation('/login'); // Перенаправляем пользователя (при необходимости)
-    await this.updatingLocalUserData(); // Данные из БД помещаем в локальные данные
+
   }
 }
 </script>

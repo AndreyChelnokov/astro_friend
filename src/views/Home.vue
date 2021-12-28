@@ -2,8 +2,9 @@
   <div class="content-page home">
     <div ref="users" class="cart__list">
       <userCart
-          v-for="(item, i) in notSelectedUsers"
-          :item="item"
+          v-for="(user, i) in userForRender"
+          :selectableUser="user"
+          :atherUserSelectedArr="user.selectedUsers"
           :index="i"
       />
     </div>
@@ -11,46 +12,59 @@
 </template>
 
 <script>
-
-import {convertObjectToArray} from "../utils";
+import { convertObjectToArray } from "../utils";
 import userCart from '../components/UserCard'
+import { mapGetters } from "vuex"
 
 export default {
   name: 'Home',
   data: function () {
     return {
-      notSelectedUsers: [], // массив не отобранных пользователец
-      selectedUsers: [],
-      rejectedUsers: []
+      allUsers: [], // Список других пользователей. Получаем 1 раз при загрузке
     }
   },
   methods: {
-    getAllUsersFromDB: async function() {
-      return await this.$store.dispatch('getAllUsers')
+    getAllUserFromDB: async function () {
+      const allUserFromDB = await this.$store.dispatch('getAllUsers')
+      return convertObjectToArray(allUserFromDB)
     },
-    excludeInappropriateUsers: async function(allUsers) {
-      return allUsers.filter(user => {
-        if (this.selectedUsers.indexOf(user.id) > 0) {
-          return false;
+    filterUsers: function() {
+      return this.allUsers.filter(user => {
+        if (Array.isArray(this.selectedUsers)) {
+          if (this.selectedUsers.indexOf(user.id) >= 0) {
+            return false;
+          }
         }
 
-        if (this.rejectedUsers.indexOf(user.id) > 0) {
-          return false;
+        if (Array.isArray(this.rejectedUsers)) {
+          if (this.rejectedUsers.indexOf(user.id) >= 0) {
+            return false;
+          }
         }
 
         return user;
       });
     },
-    getNotSelectedUsers: async function() {
-      const usersAll = convertObjectToArray( await this.getAllUsersFromDB()) ;
-      return await this.excludeInappropriateUsers(usersAll);
-    }
   },
   components: {
     userCart
   },
+  computed: {
+    userForRender: function () {
+      const resultListUsers = this.filterUsers();
+      return resultListUsers;
+    },
+    selectedUsers: function() {
+      return this.$store.state.user.selectedUsers
+    },
+    rejectedUsers: function () {
+      return this.$store.state.user.rejectedUsers;
+    },
+  },
   mounted: async function() {
-    this.notSelectedUsers = await this.getNotSelectedUsers();
+    this.allUsers = await this.getAllUserFromDB();
+
+    this.$store.dispatch('testGetChatByKey')
   }
 }
 </script>
@@ -109,20 +123,4 @@ export default {
   }
 }
 
-.cart__footer {
-  position: absolute;
-  width: 100%;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-.cart__content {
-  padding: 10px;
-}
-.cart__btns {
-  display: flex;
-  justify-content: space-around;
-  height: 40px;
-  align-items: center;
-}
 </style>

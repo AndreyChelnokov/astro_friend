@@ -37,7 +37,7 @@
         </div>
         <!-- Дата -->
         <div class="user__data-item">
-          <input @input="changeDate" v-model="userDateDay" class="input-text" type="number" placeholder="дд">
+          <input @input="changeDate" v-model="userDateDay" min="1" max="31" class="input-text" type="number" placeholder="дд">
           <input @input="changeDate" v-model="userDateMonth" class="input-text" type="number" placeholder="мм">
           <input @input="changeDate" v-model="userDateYear" class="input-text" type="number" placeholder="гг">
         </div>
@@ -68,7 +68,7 @@
 <script>
 import Select from '../components/Select';
 import { getZodiac, getAge } from '../utils'
-import EditPhoto from '../components/editPtoro'
+import EditPhoto from '../components/photo/EditPhoto'
 
 export default {
   name: 'EditProfile',
@@ -94,9 +94,10 @@ export default {
   },
   methods: {
     // Выход из аккаунта
-    signOutUser: function () {
-      this.$store.dispatch('signOutUser');
-      this.reLocation('/login')
+    signOutUser: async function () {
+      const result = await this.$store.dispatch('signOutUser');
+      console.log(result)
+      await this.reLocation('/login')
     },
     // Обновляем данные в БД
     updateUserData: async function () {
