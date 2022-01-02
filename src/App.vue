@@ -9,11 +9,14 @@
 <script>
 import authLayout from './layout/auth-layout';
 import baseLayout from './layout/base-layout';
+import chatLayout from './layout/chat-layout';
+import './assets/css/app.css';
 
 export default {
   components: {
     authLayout,
-    baseLayout
+    baseLayout,
+    chatLayout
   },
   computed: {
     layout: function () {

@@ -3,67 +3,42 @@
     <div class="message__wrap">
       <div class="message__title">Ваши чаты</div>
       <div class="message__list">
-        <div v-for="user in listChats" class="message__item">
-          <div class="message__item-img">ggg
-<!--            <img class="message__item-img-icon" :src="user.img" alt="">-->
-          </div>
-          <div class="message__item-content">
-<!--            <div class="message__item-header">-->
-<!--              <div class="message__item-name">{{ user.name }}</div>-->
-<!--              <div class="message__item-age">{{ user.age }}</div>-->
-            </div>
-            <div class="message__item-last-message">Круто, Давай встретимся на днях...</div>
-          </div>
-
-        </div>
+        <app-snippet-chat v-for="chat in listChats" :chatName="chat" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { convertObjectToArray } from '../utils';
+import snippetChat from '../components/app-snippet-chat'
 
 export default {
   name: 'Message',
   data: function () {
-    return {}
-  },
-  methods: {},
-  computed: {
-    listChats: function () {
-      return this.$store.state.user.chats;
+    return {
+      listChats: []
     }
   },
-  mounted: async function() {}
+  methods: {
+    getUserChatsName: async function () {
+      const uid = await this.$store.dispatch('getUid')
+      this.listChats = await this.$store.dispatch('GET_LIST_NAME_CHATS_USER', { userId: uid })
+    }
+  },
+  computed: {},
+  components: {
+    'app-snippet-chat': snippetChat
+  },
+  mounted: async function() {
+    await this.getUserChatsName();
+  }
 }
 </script>
 
 
 <style>
 
-.message__item-img {
-  width: 70px;
-  min-width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 1px solid #444;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.message__item-img-icon{
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-  display: block;
-}
-.message__item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 7px;
-}
+
 .message__item-content {
   margin-left: 15px;
   flex-grow: 1;
@@ -90,7 +65,10 @@ export default {
   margin-left: 10px;
   margin-right: 10px;
 }
-
+.message__list {
+  display: flex;
+  flex-direction: column-reverse;
+}
 
 
 .message__wrap:not(:last-child) {

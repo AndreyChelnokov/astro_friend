@@ -9,6 +9,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    currentChatMessage: [],
     user: {
       baseData: { // Заполняемая в профиле
         photoUrlList: [],
@@ -32,10 +33,19 @@ export default new Vuex.Store({
       },
       selectedUsers: [], // Массив id пользователей которы лайкнул +
       rejectedUsers: [], // Массив id пользователей которы дизлайкнул -
-      chats: [] // Чаты
-    }
+      chats: [], // Чаты,
+    },
+    chatsList: {}
   },
   mutations: {
+    UPDATE_MESSAGE(state, newData) {
+      state.currentChatMessage = newData
+    },
+    UPDATE_CHAT_DATA(state, data) {
+      state.chatsList[data.name] = data;
+
+      console.log('обновили информацию в сторе на ', state.chatsList[data.name].lastMassage.message)
+    },
     SET_USER_DATA (state, newValue) {
       state.user = newValue;
       console.log('Стор обнавлен', state)

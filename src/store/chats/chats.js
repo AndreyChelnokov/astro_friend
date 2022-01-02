@@ -1,76 +1,145 @@
-import { getDatabase, set, ref, get, query, equalTo, orderByChild} from "firebase/database";
+import { getDatabase, set, ref, get, query, equalTo, onValue, orderByChild, push} from "firebase/database";
 import { fireBaseApp } from '../../firebase';
 // import { updateUserChats } from '../../server';
 
 const database = getDatabase(fireBaseApp);
 
 export default {
+
     actions: {
 
-        async getUserDataFromDbById({dispatch, commit}, idSelectableUser) {
-            const userRef = ref(database, `users/${idSelectableUser}/`);
+        async GET_LIST_NAME_CHATS_USER(context, payload) {
+            const { userId } = payload;
+            const userRef = ref(database, `users/${userId}/chats`);
 
-            return get(userRef)
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        return snapshot.val();
+            return get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    return snapshot.val()
+                }
+            }).catch((error) => {
+                console.error('rrr', error);
+            });
+        },
+        async GET_ALL_LIST_CHATS(context) {
+            const userRef = ref(database, `chats`);
+
+            return get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    return snapshot.val()
+                }
+            }).catch((error) => {
+                console.error('rrr', error);
+            });
+        },
+        async GET_LIST_USER_CHATS(context, payload) {
+            const uid = await context.dispatch('getUid')
+            const allChatsNameUser = await context.dispatch('GET_LIST_NAME_CHATS_USER', { userId: uid })
+            const allChats = await context.dispatch('GET_ALL_LIST_CHATS');
+            let resultListChats = [];
+
+            if (allChats) {
+                for (let key in allChats) {
+                    allChatsNameUser.forEach(name => {
+                        if (name === key) {
+                            resultListChats.push(allChats[key])
+                        }
+                    })
+                }
+
+            }
+
+            return resultListChats;
+        },
+        async GET_CHAT_BY_ID(context, payload) {
+            const { chatName } = payload;
+
+            const userRef = ref(database, `chats/${chatName}`);
+
+            return get(userRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    return snapshot.val()
+                }
+            }).catch((error) => {
+                console.error('rrr', error);
+            });
+        },
+        async GET_CHAT_BY_NAME(context, payload) {
+            const { chat } = payload;
+
+            const mostViewedPosts = await query(ref(database, 'chats'), orderByChild('name'), equalTo(chat));
+
+            return get(mostViewedPosts).then((snapshot) => {
+                if (snapshot.exists()) {
+                    return snapshot.val().filter(Boolean)
+                }
+            }).catch((error) => {
+                console.error('rrr', error);
+            });
+        },
+
+        async CREATE_CHAT(context, payload) {
+            const { chatName, users } = payload
+
+            const refChats = ref(database, `chats/${chatName}`);
+
+            const newChat = {
+                name: chatName,
+                users: users,
+                lastMassage: {
+                    author: 'admin',
+                    message: 'Вы создали чат',
+                    time: `${new Date()}`
+                },
+                messages: {
+                    message: {
+                        author: 'admin',
+                        message: 'Вы создали чат'
                     }
-
-                    console.error('Ошибка при получении данных пользователя в методе ')
-                }).catch((error) => {
-                    console.error('rrr', error);
-                });
-
-        },
-        async setChatFromDbById({dispatch, commit}, { idSelectableUser, index, userData, chatName }) {
-            const setData = { index: chatName };
-            const setRef = ref(database, `users/${idSelectableUser}/chats`);
-
-            console.log('setData', setData)
-
-            return await set(setRef, setData);
-        },
-
-        async updateChatsUser({dispatch, commit}, { idSelectableUser, chatName }) {
-            const userData = await dispatch('getUserDataFromDbById', idSelectableUser);
-            let opts = {};
-
-            if (userData.chats && Array.isArray(userData.chats)) {
-                const newItemIndex = userData.chats.length;
-                opts = { idSelectableUser, index: newItemIndex, userData, chatName }
-            } else {
-                opts = { idSelectableUser, index: 0, userData, chatName }
+                }
             }
 
-            return dispatch('setChatFromDbById', opts);
+            set(refChats, newChat)
         },
 
+        async ADD_CHAT_NAME_USER(context, payload) {
+            const { userId, chatName } = payload;
+            let newListChats = []
+            const refUserChatsList = ref(database, `users/${userId}/chats`);
 
-        async createChat({dispatch, commit}, { companionId }) {
-            const uid = await dispatch('getUid');
-            const chatName = `${uid}${companionId}`
-            const refChat = ref(database, `chats/${chatName}`);
+            const oldChatsList = await context.dispatch('GET_LIST_NAME_CHATS_USER', { userId })
 
-            const defaultDataChat = {
-                author: 'admin',
-                message: 'Вы создали чат'
+            if (Array.isArray(oldChatsList)) {
+                oldChatsList.forEach(item => {
+                    newListChats.push(item)
+                })
             }
+            newListChats.push(chatName)
 
-            await set(refChat, defaultDataChat);
-
-            return chatName;
+            set(refUserChatsList, newListChats)
         },
-        async initNewChat({dispatch, commit}, { companionId }) {
-            const chatName = await dispatch('createChat', { companionId })
+        async SEND_NEW_MESSAGE(context, payload) {
+            const { message, chat } = payload;
 
+            const refChats = ref(database, `chats/${chat}/messages`);
+            push(refChats, message);
+        },
+        async UPDATE_LAST_MESSAGE(context, payload) {
+            const { message, chat } = payload;
 
-            return chatName;
-
+            const refChats = ref(database, `chats/${chat}/lastMassage`);
+            set(refChats, message);
         },
 
+        async GET_MESSAGES(context, payload) {
+            const { chat } = payload;
 
-        async testGetChatByKey({dispatch, commit}) {
+            const refChats = ref(database, `chats/${chat}/messages`);
 
-        }
+            onValue(refChats, await function (snapshot) {
+                const data = snapshot.val();
+                context.commit('UPDATE_MESSAGE', data)
+                return data
+            });
+        },
     }
 }
