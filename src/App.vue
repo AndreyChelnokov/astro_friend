@@ -23,9 +23,11 @@ export default {
       return `${this.$route.meta.layout || 'auth'}-layout`
     }
   },
-  mounted: async function() {
-    await this.$store.dispatch('getUserData'); // Получаем данные из БД в стор
-    this.$store.commit('CREATE_USER_EMPTY_FIELDS')
+  mounted: function() {
+    // await this.$store.dispatch('getUserData'); todo
+    // this.$store.commit('CREATE_USER_EMPTY_FIELDS') todo
+
+    this.$store.dispatch('getCurrentUser') // Синхронизируемся с пользователем
   }
 }
 </script>

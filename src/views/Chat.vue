@@ -10,15 +10,15 @@
         <div class="chat-header__name">{{ companion.baseData ? companion.baseData.name.name : '' }}</div>
       </div>
       <div class="chat-header__companion-img">
-        <img :src="imgCompanion" alt="">
+        <img :src="companionImages" alt="">
       </div>
     </div>
 
     <div ref="chatMessages" class="chat__messages">
       <app-chat-message
-          v-for="message in messageList"
+          v-for="message in messagesList"
           :message="message"
-          :authorMode="getClassMessage(message.author)"
+          :authorMode="getAuthorMode(message.author)"
       />
     </div>
 
@@ -38,7 +38,6 @@ export default {
   data: function () {
     return {
       chatName: this.$route.params.id,
-      currentUser: {},
       companion: {},
     }
   },
@@ -47,7 +46,7 @@ export default {
     'app-chat-input': ChatInput
   },
   methods: {
-    getClassMessage: function (author) {
+    getAuthorMode: function (author) {
       let className = 'admin'
       if (this.companion.baseData && this.currentUser.baseData) {
         if (this.currentUser && author === this.currentUser.baseData.name.name) {
@@ -59,58 +58,57 @@ export default {
 
       return className;
     },
-    getCompanionId: async function () {
-      const uid = await this.$store.dispatch('getUid')
-      return this.$route.params.id.replace(`${uid}`, '');
-    },
-    getCompanion: async function () {
-      const companion = await this.$store.dispatch('gitUserDataById', { id: await this.getCompanionId()})
-      this.companion = companion;
-      return companion
-    },
-    getCurrentUser: async function () {
+
+    getCompanionUid: async function() {
       const uid = await this.$store.dispatch('getUid');
-      const currentUser = await this.$store.dispatch('gitUserDataById', { id: uid })
-      this.currentUser = currentUser;
-      return currentUser
+      return this.currentUser.uid ? this.$route.params.id.replace(`${uid}`, '') : '';
+      // UId Собеседника
     },
+
+    getCompanion: async function () {
+      this.companion = await this.$store.dispatch('gitUserDataById', { id: await this.getCompanionUid() })
+    },
+
     scrollToBottom: function () {
       if (this.$refs.chatMessages) {
-        this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.clientHeight
+        this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight
       }
     }
   },
   computed: {
-    messageList: function () {
-      return this.$store.state.currentChatMessage;
+    currentUser() {
+      return this.$store.state.user.currentUser ? this.$store.state.user.currentUser : {}
+      // Вся информация о текущем пользователе
     },
-    imgCompanion: function () {
-      let imgUrl = ''
 
-      if (this.companion.baseData && this.companion.baseData.photoUrlList && Array.isArray(this.companion.baseData.photoUrlList)) {
-        this.companion.baseData.photoUrlList.forEach(photo => {
-          if (photo.avatar) {
-            imgUrl = photo.url;
-          }
-        })
-      }
-
-      return imgUrl;
+    messagesList() {
+      return this.$store.state.chat.currentChatMessage ? this.$store.state.chat.currentChatMessage : [];
+      // Массив сообщений текущего чата
     },
-    chatData: async function() {
-      return await this.$store.dispatch('GET_CHAT_BY_ID', { chatName: this.chatName })
+
+    photoUrlList() {
+      return this.companion.baseData ? this.companion.baseData.photoUrlList : []
+      // Массив изображений собеседника
+    },
+
+    companionImages() {
+      return this.photoUrlList.length ? this.companion.baseData.photoUrlList.filter(photo => photo.avatar)[0].url : 'defaultUrl';
+      // Аватарка собеседника
     },
   },
   mounted: async function(){
     await this.getCompanion()
-    await this.getCurrentUser()
 
     await this.$store.dispatch('GET_MESSAGES', {
-      chat: this.$route.params.id
-    })
+      chat: this.chatName
+    }) // Синхронизация сообщений
+
+    if (! await this.$store.dispatch('getUid')) {
+      await this.$router.push('/login')
+    } // Переадресация
   },
   watch: {
-    messageList: function () {
+    messagesList: function () {
       this.scrollToBottom()
     }
   }

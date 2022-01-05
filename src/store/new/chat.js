@@ -1,13 +1,17 @@
-import { getDatabase, set, ref, get, query, equalTo, onValue, orderByChild, push} from "firebase/database";
-import { fireBaseApp } from '../../firebase';
-// import { updateUserChats } from '../../server';
-
+import {equalTo, get, getDatabase, onValue, orderByChild, push, query, ref, set} from "firebase/database";
+import {fireBaseApp} from '../../firebase';
 const database = getDatabase(fireBaseApp);
 
 export default {
-
+    state: {
+        currentChatMessage: {}
+    },
+    mutations: {
+        UPDATE_MESSAGE(state, newData) {
+            state.currentChatMessage = newData
+        },
+    },
     actions: {
-
         async GET_LIST_NAME_CHATS_USER(context, payload) {
             const { userId } = payload;
             const userRef = ref(database, `users/${userId}/chats`);
@@ -130,6 +134,15 @@ export default {
             set(refChats, message);
         },
 
+        async UPDATE_CHECKED_MESSAGE(context, payload) {
+            const { idChat, idMessage } = payload;
+
+            const refChats = ref(database, `chats/${idChat}/messages/${idMessage}/checked`);
+            set(refChats, true);
+        },
+
+
+        // sync
         async GET_MESSAGES(context, payload) {
             const { chat } = payload;
 
@@ -137,9 +150,14 @@ export default {
 
             onValue(refChats, await function (snapshot) {
                 const data = snapshot.val();
+
+                for (const key in data) {
+                    data[key].id = key
+                }
+
                 context.commit('UPDATE_MESSAGE', data)
                 return data
             });
-        },
+        }
     }
 }

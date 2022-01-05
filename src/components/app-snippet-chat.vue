@@ -18,7 +18,10 @@
           <div class="message__item-last-time">{{ chatData.lastMassage ? new Date(chatData.lastMassage.time).getHours() + ':' + new Date(chatData.lastMassage.time).getMinutes() : '' }}</div>
         </div>
       </div>
-      counter {{ noCheckedMessageCounter }}
+      <div v-if="noCheckedMessageCounter > 0" class="message__counter-no-checked">
+        {{ noCheckedMessageCounter }}
+      </div>
+
     </div>
   </router-link>
 </template>
@@ -62,12 +65,14 @@ export default {
   computed: {
     noCheckedMessageCounter: function () {
       let counter = 0;
-      if (this.chatData.messages) {
+      if (this.chatData.messages && this.companion.baseData) {
         for (let key in this.chatData.messages) {
-          console.log('f', this.chatData.messages[key].checked)
-          if (this.chatData.messages[key].checked === false) {
-            counter++
+          if (this.chatData.messages[key].author === this.companion.baseData.name.name) {
+            if (this.chatData.messages[key].checked === false) {
+              counter++
+            }
           }
+
         }
       }
       return counter;
@@ -137,7 +142,10 @@ export default {
     align-items: center;
   }
   .message__item-last-text {
-    max-width: 75%;
+    max-width: 65%;
     margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>

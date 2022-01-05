@@ -3,7 +3,7 @@
     <div class="message__wrap">
       <div class="message__title">Ваши чаты</div>
       <div class="message__list">
-        <app-snippet-chat v-for="chat in listChats" :chatName="chat" />
+        <app-snippet-chat v-for="chatName in userChatsName" :chatName="chatName" />
       </div>
     </div>
   </div>
@@ -14,24 +14,14 @@ import snippetChat from '../components/app-snippet-chat'
 
 export default {
   name: 'Message',
-  data: function () {
-    return {
-      listChats: []
+  computed: {
+    userChatsName() {
+      return this.$store.state.user.currentUser.chats ? this.$store.state.user.currentUser.chats : [];
     }
   },
-  methods: {
-    getUserChatsName: async function () {
-      const uid = await this.$store.dispatch('getUid')
-      this.listChats = await this.$store.dispatch('GET_LIST_NAME_CHATS_USER', { userId: uid })
-    }
-  },
-  computed: {},
   components: {
     'app-snippet-chat': snippetChat
   },
-  mounted: async function() {
-    await this.getUserChatsName();
-  }
 }
 </script>
 
