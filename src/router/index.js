@@ -67,7 +67,15 @@ const routes = [
       layout: 'auth'
     },
     component: () => import('../views/Login.vue')
-  }
+  },
+  {
+    path: '/chat/:id',
+    name: 'Chat',
+    meta: {
+      layout: 'chat'
+    },
+    component: () => import('../views/Chat.vue')
+  },
 ]
 
 const router = new VueRouter({

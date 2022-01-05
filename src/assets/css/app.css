@@ -1,0 +1,125 @@
+.chat {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* chat-header */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px;
+    border-bottom: 1px solid #dfdddd;
+    background: #f3f3f3;
+}
+.chat-header__prev-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.chat-header__companion-img {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.chat-header__companion-img img {
+    width: 100%;
+    height: 100%;
+}
+
+
+
+
+
+/* chat-messages */
+.chat__messages {
+    height: 100%;
+    overflow: scroll;
+    padding: 20px 10px 10px;
+}
+.chat__message-wrap {
+    margin-bottom: 6px;
+}
+
+.chat-message {
+    width: fit-content;
+    max-width: 80%;
+    position: relative;
+    padding: 4px 8px;
+}
+.chat__item-message {
+    text-align: left;
+}
+
+/* currentUser */
+.chat__message-wrap-currentUser {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.currentUser {
+    background: #007AFF;
+    border-radius: 6px;
+    border-top-right-radius: 0px;
+    color: #fff;
+}
+.companionUser .chat-message__border {
+    position: absolute;
+    left: -8px;
+    top: -4px;
+    width: max-content;
+}
+
+.chat__message-wrap-companionUser {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.companionUser {
+    background: #F2F2F7;
+    border-radius: 6px;
+    border-top-left-radius: 0px;
+}
+.currentUser .chat-message__border {
+    position: absolute;
+    right: -8px;
+    top: -4px;
+    width: max-content;
+}
+
+
+
+
+
+
+/* chat-input */
+.chat-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    border-top: 1px solid #a5a5a5;
+    min-height: 48px;
+    width: 100%;
+}
+.chat-input button {
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.chat-input__field {
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 0 10px;
+    outline: none;
+}

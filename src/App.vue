@@ -9,19 +9,25 @@
 <script>
 import authLayout from './layout/auth-layout';
 import baseLayout from './layout/base-layout';
+import chatLayout from './layout/chat-layout';
+import './assets/css/app.css';
 
 export default {
   components: {
     authLayout,
-    baseLayout
+    baseLayout,
+    chatLayout
   },
   computed: {
     layout: function () {
       return `${this.$route.meta.layout || 'auth'}-layout`
     }
   },
-  mounted: async function() {
-    await this.$store.dispatch('getUserData'); // Получаем данные из БД в стор
+  mounted: function() {
+    // await this.$store.dispatch('getUserData'); todo
+    // this.$store.commit('CREATE_USER_EMPTY_FIELDS') todo
+
+    this.$store.dispatch('getCurrentUser') // Синхронизируемся с пользователем
   }
 }
 </script>

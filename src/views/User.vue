@@ -1,15 +1,14 @@
 <template>
   <div class="user-profile">
-
     <div class="user-profile__photo-container">
       <div class="user-profile__photo-wrap">
         <div class="user-profile__photo-slider-container" ref="photoSwiper" v-swiper:mySwiper="swiperOptions">
           <div class="swiper-wrapper">
-            <div class="user-profile__photo swiper-slide" v-for="photo in user.photo" :key="photo.id" :id="photo.id">
+            <div class="user-profile__photo swiper-slide" v-for="photo in photoUrlList" :key="photo.id" :id="photo.id">
               <img :src="photo.url" alt="">
             </div>
           </div>
-          <div class="swiper-pagination"></div>
+          <div class="user-profile__pagination" slot="pagination"></div>
         </div>
       </div>
     </div>
@@ -17,15 +16,15 @@
     <div class="user-profile__data">
       <div class="user-profile__data-item data-item">
         <div class="user-profile-header">
-          <div class="user-profile__name">{{ user.name }}</div>
-          <div class="user-profile__age">24</div>
+          <div class="user-profile__name">{{ currentUser.baseData ? currentUser.baseData.name.name : '' }}</div>
+          <div class="user-profile__age">{{ currentUser.baseData ? currentUser.baseData.age : '' }}</div>
         </div>
-        <div class="user-profile__descr">{{ user.about }}</div>
+        <div class="user-profile__descr">{{ currentUser.baseData ? currentUser.baseData.description : '' }}</div>
       </div>
       <div class="user-profile__data-item data-item">
         <div class="data-item__elem">
-          Знак зодиака: {{ user.zodiac }} <br>
-          Пол: {{ user.polResult }}
+          Знак зодиака: {{ currentUser.baseData ? currentUser.baseData.zodiac : '' }} <br>
+          Пол: {{ currentUser.baseData ? currentUser.baseData.pol : '' }}
         </div>
       </div>
     </div>
@@ -37,106 +36,48 @@
       </div>
     </router-link>
 
-
-
-
   </div>
 </template>
 
 
 <script>
-import Select from '../components/Select';
 import { Swiper, SwiperSlide, directive } from 'vue-awesome-swiper';
 import '../assets/css/swiper.css';
 
-import { updatingLocalUserDataFunction } from '../utils';
 export default {
   name: 'User',
   data: function () {
     return {
       swiperOptions: {
         pagination: {
-          el: '.swiper-pagination',
-        },
-      },
-      user: {
-        photo: [],
-        name: '',
-        lastName: '',
-        patronymic: '',
-        age: '',
-        date: '',
-        time: '',
-        zodiac: '',
-        pol: {
-          errorText: 'Укажите ваш пол',
-          name: 'Пол',
-          values: [
-            {
-              value: '1',
-              name: 'Мужской'
-            },
-            {
-              value: '2',
-              name: 'Женский'
-            }
-          ]
-        },
-        polResult: '',
-        dateOfBirth: {
-          day: '',
-          month: '',
-          year: '',
-          minute: '',
-          second: ''
-        },
-        site: '',
-        about: ''
+          el: '.user-profile__pagination',
+          loop: true
+        }
       }
     }
   },
   components: {
-    Select,
     Swiper,
     SwiperSlide
   },
   directives: {
     swiper: directive
   },
-  methods: {
-    getUserDateFromDB: async function() {
-      return await this.$store.dispatch('getUserData');
-    },
-    updatingLocalUserData: async function() {
-      const userData = await this.getUserDateFromDB();
-
-      updatingLocalUserDataFunction(userData, this.user)
-    },
-
-    isUser: async function() {
-      let uid = await this.$store.dispatch('getUid');
-
-      if (uid) {
-        return true;
-      }
-
-      return false;
-    },
-    updateUserRouterLocation: async function(newLocation) {
-      if (await this.isUser()) {
-      } else {
-        await this.$router.push(newLocation)
-      }
-    }
-  },
   computed: {
-    swiper: function() {
+    swiper() {
       return this.$refs.photoSwiper.$swiper;
     },
+    currentUser() {
+      return this.$store.state.user.currentUser;
+    },
+    photoUrlList() {
+      return this.currentUser.baseData ? this.currentUser.baseData.photoUrlList : [];
+    }
   },
   mounted: async function () {
-    await this.updateUserRouterLocation('/login'); // Перенаправляем пользователя (при необходимости)
-    await this.updatingLocalUserData(); // Данные из БД помещаем в локальные данные
+    if (! await this.$store.dispatch('getUid')) {
+      await this.$router.push('/login')
+    } // Переадресация
   }
 }
 </script>
